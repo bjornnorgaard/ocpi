@@ -1,0 +1,1718 @@
+openapi: 3.0.3
+info:
+  title: OCPI 2.3.0 Locations Module
+  description: |
+    OpenAPI specification for the OCPI 2.3.0 Locations module.
+    
+    The Locations module describes charging locations of an operator (CPO).
+    Location objects live in the CPO back-end system and describe the charging 
+    locations with their EVSEs and Connectors.
+  version: 2.3.0
+  contact:
+    name: EVRoaming Foundation
+    url: https://www.evroaming.org
+servers:
+  - url: https://api.example.com/ocpi/cpo/2.3.0
+    description: CPO API Server (Sender Interface)
+  - url: https://api.example.com/ocpi/emsp/2.3.0
+    description: eMSP API Server (Receiver Interface)
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+      description: |
+        OCPI uses token-based authentication. Every request must contain a 
+        credentials token in the HTTP Authorization header using Bearer scheme.
+        
+        Format: Authorization: Bearer <token>
+        
+        The token is obtained through the credentials exchange process as
+        described in the OCPI credentials module.
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OCPIResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OCPIResponse'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OCPIResponse'
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OCPIResponse'
+
+  schemas:
+    OCPIResponse:
+      type: object
+      properties:
+        status_code:
+          type: integer
+          description: OCPI status code
+        status_message:
+          type: string
+          description: Human readable status message
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when this message was created
+      required:
+        - status_code
+        - timestamp
+
+    # Base Types from types.asciidoc
+    CiString:
+      type: string
+      pattern: '^[\x21-\x7E]*$'
+      description: Case Insensitive String. Only printable ASCII allowed.
+
+    DisplayText:
+      type: object
+      properties:
+        language:
+          type: string
+          maxLength: 2
+          description: Language Code ISO 639-1
+        text:
+          type: string
+          maxLength: 512
+          description: Text to be displayed to end user. No markup, html etc. allowed
+      required:
+        - language
+        - text
+
+    GeoLocation:
+      type: object
+      properties:
+        latitude:
+          type: string
+          pattern: '^-?[0-9]{1,2}\.[0-9]{5,7}$'
+          description: Latitude of the point in decimal degree. Example 50.770774
+        longitude:
+          type: string
+          pattern: '^-?[0-9]{1,3}\.[0-9]{5,7}$'
+          description: Longitude of the point in decimal degree. Example -126.104965
+      required:
+        - latitude
+        - longitude
+
+    Location:
+      type: object
+      description: The Location object describes the location and its properties where a group of EVSEs are installed
+      properties:
+        country_code:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 2
+              description: ISO-3166 alpha-2 country code of the CPO that 'owns' this Location
+        party_id:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 3
+              description: ID of the CPO that 'owns' this Location (following the ISO-15118 standard)
+        id:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 36
+              description: Uniquely identifies the location within the CPOs platform
+        publish:
+          type: boolean
+          description: Defines if a Location may be published on a website or app etc
+        publish_allowed_to:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublishTokenType'
+          description: Only owners of Tokens that match all set fields are allowed to be shown this location
+        name:
+          type: string
+          maxLength: 255
+          description: Display name of the location
+        address:
+          type: string
+          maxLength: 45
+          description: Street/block name and house number if available
+        city:
+          type: string
+          maxLength: 45
+          description: City or town
+        postal_code:
+          type: string
+          maxLength: 10
+          description: Postal code of the location
+        state:
+          type: string
+          maxLength: 20
+          description: State or province of the location, only to be used when relevant
+        country:
+          type: string
+          maxLength: 3
+          description: ISO 3166-1 alpha-3 code for the country of this location
+        coordinates:
+          $ref: '#/components/schemas/GeoLocation'
+        related_locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdditionalGeoLocation'
+          description: Geographical location of related points relevant to the user
+        parking_type:
+          $ref: '#/components/schemas/ParkingType'
+        evses:
+          type: array
+          items:
+            $ref: '#/components/schemas/EVSE'
+          description: List of EVSEs that belong to this Location
+        parking_places:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parking'
+          description: List of parking places that can be used by vehicles charging at this Location
+        directions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisplayText'
+          description: Human-readable directions on how to reach the location
+        operator:
+          $ref: '#/components/schemas/BusinessDetails'
+        suboperator:
+          $ref: '#/components/schemas/BusinessDetails'
+        owner:
+          $ref: '#/components/schemas/BusinessDetails'
+        facilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facility'
+          description: Optional list of facilities this charging location directly belongs to
+        time_zone:
+          type: string
+          maxLength: 255
+          description: One of IANA tzdata's TZ-values representing the time zone of the location
+        opening_times:
+          $ref: '#/components/schemas/Hours'
+        charging_when_closed:
+          type: boolean
+          description: Indicates if the EVSEs are still charging outside the opening hours of the location
+          default: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+          description: Links to images related to the location such as photos or logos
+        energy_mix:
+          $ref: '#/components/schemas/EnergyMix'
+        help_phone:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 25
+              description: A telephone number that a Driver using the Location may call for assistance
+        last_updated:
+          type: string
+          format: date-time
+          description: Timestamp when this Location or one of its EVSEs or Connectors were last updated
+      required:
+        - country_code
+        - party_id
+        - id
+        - publish
+        - address
+        - city
+        - country
+        - coordinates
+        - time_zone
+        - last_updated
+
+    EVSE:
+      type: object
+      description: The EVSE object describes the part that controls the power supply to a single EV in a single session
+      properties:
+        uid:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 36
+              description: Uniquely identifies the EVSE within the CPOs platform
+        evse_id:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 48
+              description: Compliant with the specification for EVSE ID
+        status:
+          $ref: '#/components/schemas/Status'
+        status_schedule:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatusSchedule'
+          description: Indicates a planned status update of the EVSE
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Capability'
+          description: List of functionalities that the EVSE is capable of
+        connectors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connector'
+          description: List of available connectors on the EVSE
+          minItems: 1
+        floor_level:
+          type: string
+          maxLength: 4
+          description: Level on which the Charge Point is located (in garage buildings)
+        coordinates:
+          $ref: '#/components/schemas/GeoLocation'
+        physical_reference:
+          type: string
+          maxLength: 16
+          description: A number/string printed on the outside of the EVSE for visual identification
+        directions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisplayText'
+          description: Multi-language human-readable directions when more detailed information is required
+        parking_restrictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParkingRestriction'
+          description: Restrictions on who can charge at the EVSE
+        parking:
+          type: array
+          items:
+            $ref: '#/components/schemas/EVSEParking'
+          description: References to the parking space or spaces that can be used by vehicles charging at this EVSE
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+          description: Links to images related to the EVSE such as photos or logos
+        accepted_service_providers:
+          type: array
+          items:
+            type: string
+            maxLength: 50
+          description: List of the names of the eMSPs offering contract-based payment options that are accepted at this EVSE
+        last_updated:
+          type: string
+          format: date-time
+          description: Timestamp when this EVSE or one of its Connectors was last updated
+      required:
+        - uid
+        - status
+        - connectors
+        - last_updated
+
+    Connector:
+      type: object
+      description: A Connector is the socket or cable and plug available for the EV to use
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 36
+              description: Identifier of the Connector within the EVSE
+        standard:
+          $ref: '#/components/schemas/ConnectorType'
+        format:
+          $ref: '#/components/schemas/ConnectorFormat'
+        power_type:
+          $ref: '#/components/schemas/PowerType'
+        max_voltage:
+          type: integer
+          description: Maximum voltage of the connector, in volt [V]
+        max_amperage:
+          type: integer
+          description: Maximum amperage of the connector, in ampere [A]
+        max_electric_power:
+          type: integer
+          description: Maximum electric power that can be delivered by this connector, in Watts (W)
+        tariff_ids:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+          description: Identifiers of the currently valid charging tariffs
+        terms_and_conditions:
+          type: string
+          format: uri
+          description: URL to the operator's terms and conditions
+        capabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorCapability'
+          description: List of functionalities that the connector is capable of
+        last_updated:
+          type: string
+          format: date-time
+          description: Timestamp when this Connector was last updated
+      required:
+        - id
+        - standard
+        - format
+        - power_type
+        - max_voltage
+        - max_amperage
+        - last_updated
+
+    # Enums from mod_locations.asciidoc
+    Status:
+      type: string
+      description: The status of an EVSE
+      enum:
+        - AVAILABLE
+        - BLOCKED
+        - CHARGING
+        - INOPERATIVE
+        - OUTOFORDER
+        - PLANNED
+        - REMOVED
+        - RESERVED
+        - UNKNOWN
+
+    ConnectorType:
+      type: string
+      description: The socket or plug standard of the charging point
+      enum:
+        - CHADEMO
+        - CHAOJI
+        - DOMESTIC_A
+        - DOMESTIC_B
+        - DOMESTIC_C
+        - DOMESTIC_D
+        - DOMESTIC_E
+        - DOMESTIC_F
+        - DOMESTIC_G
+        - DOMESTIC_H
+        - DOMESTIC_I
+        - DOMESTIC_J
+        - DOMESTIC_K
+        - DOMESTIC_L
+        - DOMESTIC_M
+        - DOMESTIC_N
+        - DOMESTIC_O
+        - GBT_AC
+        - GBT_DC
+        - IEC_60309_2_single_16
+        - IEC_60309_2_three_16
+        - IEC_60309_2_three_32
+        - IEC_60309_2_three_64
+        - IEC_62196_T1
+        - IEC_62196_T1_COMBO
+        - IEC_62196_T2
+        - IEC_62196_T2_COMBO
+        - IEC_62196_T3A
+        - IEC_62196_T3C
+        - MCS
+        - NEMA_5_20
+        - NEMA_6_30
+        - NEMA_6_50
+        - NEMA_10_30
+        - NEMA_10_50
+        - NEMA_14_30
+        - NEMA_14_50
+        - PANTOGRAPH_BOTTOM_UP
+        - PANTOGRAPH_TOP_DOWN
+        - SAE_J3400
+        - TESLA_R
+        - TESLA_S
+
+    ConnectorFormat:
+      type: string
+      description: The format of the connector, whether it is a socket or a plug
+      enum:
+        - SOCKET
+        - CABLE
+
+    PowerType:
+      type: string
+      description: Power type of the connector
+      enum:
+        - AC_1_PHASE
+        - AC_2_PHASE
+        - AC_2_PHASE_SPLIT
+        - AC_3_PHASE
+        - DC
+
+    ParkingType:
+      type: string
+      description: Reflects the general type of the charge point's location
+      enum:
+        - ALONG_MOTORWAY
+        - PARKING_GARAGE
+        - PARKING_LOT
+        - ON_DRIVEWAY
+        - ON_STREET
+        - UNDERGROUND_GARAGE
+
+    Capability:
+      type: string
+      description: The capabilities of an EVSE
+      enum:
+        - CHARGING_PROFILE_CAPABLE
+        - CHARGING_PREFERENCES_CAPABLE
+        - CHIP_CARD_SUPPORT
+        - CONTACTLESS_CARD_SUPPORT
+        - CREDIT_CARD_PAYABLE
+        - DEBIT_CARD_PAYABLE
+        - PED_TERMINAL
+        - REMOTE_START_STOP_CAPABLE
+        - RESERVABLE
+        - RFID_READER
+        - START_SESSION_CONNECTOR_REQUIRED
+        - TOKEN_GROUP_CAPABLE
+        - UNLOCK_CAPABLE
+
+    ConnectorCapability:
+      type: string
+      description: Functionalities that a Connector may or may not support
+      enum:
+        - ISO_15118_2_PLUG_AND_CHARGE
+        - ISO_15118_20_PLUG_AND_CHARGE
+
+    Facility:
+      type: string
+      description: Types of facilities available at the charging location
+      enum:
+        - HOTEL
+        - RESTAURANT
+        - CAFE
+        - MALL
+        - SUPERMARKET
+        - SPORT
+        - RECREATION_AREA
+        - NATURE
+        - MUSEUM
+        - BIKE_SHARING
+        - BUS_STOP
+        - TAXI_STAND
+        - TRAM_STOP
+        - METRO_STATION
+        - TRAIN_STATION
+        - AIRPORT
+        - PARKING_LOT
+        - CARPOOL_PARKING
+        - FUEL_STATION
+        - WIFI
+
+    ParkingRestriction:
+      type: string
+      description: This value represents the restriction to the parking spot for different purposes
+      enum:
+        - CUSTOMERS
+        - DISABLED
+        - EMPLOYEES
+        - EV_ONLY
+        - MOTORCYCLES
+        - PLUGGED
+        - TAXIS
+        - TENANTS
+
+    # Complex Types
+    BusinessDetails:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: Name of the operator
+        website:
+          type: string
+          format: uri
+          description: Link to the operator's website
+        logo:
+          $ref: '#/components/schemas/Image'
+      required:
+        - name
+
+    Image:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: URL from where the image data can be fetched
+        thumbnail:
+          type: string
+          format: uri
+          description: URL from where a thumbnail of the image can be fetched
+        category:
+          $ref: '#/components/schemas/ImageCategory'
+        type:
+          type: string
+          maxLength: 4
+          description: Image type like gif, jpeg, png, svg
+        width:
+          type: integer
+          maximum: 99999
+          description: Width of the full scale image
+        height:
+          type: integer
+          maximum: 99999
+          description: Height of the full scale image
+      required:
+        - url
+        - category
+        - type
+
+    ImageCategory:
+      type: string
+      description: The category of an image to obtain the correct usage in a user presentation
+      enum:
+        - CHARGER
+        - ENTRANCE
+        - LOCATION
+        - NETWORK
+        - OPERATOR
+        - OTHER
+        - OWNER
+
+    PublishTokenType:
+      type: object
+      description: Defines the set of values that identify a token to which a Location might be published
+      properties:
+        uid:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 36
+              description: Unique ID by which this Token can be identified
+        type:
+          type: string
+          description: Type of the token
+        visual_number:
+          type: string
+          maxLength: 64
+          description: Visual readable number/identification as printed on the Token
+        issuer:
+          type: string
+          maxLength: 64
+          description: Issuing company, most of the times the name of the company printed on the token
+        group_id:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 36
+              description: This ID groups a couple of tokens
+
+    AdditionalGeoLocation:
+      type: object
+      description: Additional geo location that is relevant for the Charge Point
+      properties:
+        latitude:
+          type: string
+          pattern: '^-?[0-9]{1,2}\.[0-9]{5,7}$'
+          description: Latitude of the point in decimal degree
+        longitude:
+          type: string
+          pattern: '^-?[0-9]{1,3}\.[0-9]{5,7}$'
+          description: Longitude of the point in decimal degree
+        name:
+          $ref: '#/components/schemas/DisplayText'
+      required:
+        - latitude
+        - longitude
+
+    Parking:
+      type: object
+      description: Describes a parking space that a vehicle can be parked in while charging
+      properties:
+        id:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 36
+              description: The identifier for this parking space
+        physical_reference:
+          type: string
+          maxLength: 12
+          description: A string identifier for the parking place that is physically visible on-site
+        vehicle_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleType'
+          minItems: 1
+          description: The vehicle types that the parking is designed to accommodate
+        max_vehicle_weight:
+          type: number
+          description: The maximum vehicle weight that can park at the EVSE, in kilograms
+        max_vehicle_height:
+          type: number
+          description: The maximum vehicle height that can park at the EVSE, in centimeters
+        max_vehicle_length:
+          type: number
+          description: The maximum vehicle length that can park at the EVSE, in centimeters
+        max_vehicle_width:
+          type: number
+          description: The maximum vehicle width that can park at the EVSE, in centimeters
+        parking_space_length:
+          type: number
+          description: The length of the parking space, in centimeters
+        parking_space_width:
+          type: number
+          description: The width of the parking space, in centimeters
+        dangerous_goods_allowed:
+          type: boolean
+          description: Whether vehicles loaded with dangerous substances are allowed to park at the EVSE
+        direction:
+          $ref: '#/components/schemas/ParkingDirection'
+        drive_through:
+          type: boolean
+          description: Whether a vehicle can stop, charge, and proceed without reversing
+        restricted_to_type:
+          type: boolean
+          description: Whether it is forbidden for vehicles of a type not listed to park at the EVSE
+        reservation_required:
+          type: boolean
+          description: Whether a reservation is required for parking at the EVSE
+        time_limit:
+          type: number
+          description: Time limit in minutes for parking
+        roofed:
+          type: boolean
+          description: Whether the vehicle will be parked under a roof while charging
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+          description: Photos of the parking space at the EVSE
+        lighting:
+          type: boolean
+          description: Whether the parking space for the EVSE is lit by artificial lighting
+        refrigeration_outlet:
+          type: boolean
+          description: Whether a power outlet is available to power a transport truck's load refrigeration
+        standards:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+          description: List of standards that the parking space conforms to
+        apds_reference:
+          $ref: '#/components/schemas/CiString'
+      required:
+        - id
+        - vehicle_types
+        - restricted_to_type
+        - reservation_required
+
+    VehicleType:
+      type: string
+      description: A categorization of vehicles to indicate which type of vehicles can use a certain EVSE
+      enum:
+        - MOTORCYCLE
+        - PERSONAL_VEHICLE
+        - PERSONAL_VEHICLE_WITH_TRAILER
+        - VAN
+        - SEMI_TRACTOR
+        - RIGID
+        - TRUCK_WITH_TRAILER
+        - BUS
+        - DISABLED
+
+    ParkingDirection:
+      type: string
+      description: Indicates the direction in which parking occurs relative to the roadway
+      enum:
+        - PARALLEL
+        - PERPENDICULAR
+        - ANGLE
+
+    Hours:
+      type: object
+      description: Opening and access hours of the location
+      properties:
+        twentyfourseven:
+          type: boolean
+          description: True to represent 24 hours a day and 7 days a week, except the given exceptions
+        regular_hours:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegularHours'
+          description: Regular hours, weekday-based
+        exceptional_openings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExceptionalPeriod'
+          description: Exceptions for specified calendar dates, time-range based
+        exceptional_closings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExceptionalPeriod'
+          description: Exceptions for specified calendar dates, time-range based
+      required:
+        - twentyfourseven
+
+    RegularHours:
+      type: object
+      description: Regular recurring operation or access hours
+      properties:
+        weekday:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: Number of day in the week, from Monday (1) till Sunday (7)
+        period_begin:
+          type: string
+          pattern: '^([0-1][0-9]|2[0-3]):[0-5][0-9]$'
+          description: Begin of the regular period, in local time, given in hours and minutes
+        period_end:
+          type: string
+          pattern: '^([0-1][0-9]|2[0-3]):[0-5][0-9]$'
+          description: End of the regular period, in local time
+      required:
+        - weekday
+        - period_begin
+        - period_end
+
+    ExceptionalPeriod:
+      type: object
+      description: Specifies one exceptional period for opening or access hours
+      properties:
+        period_begin:
+          type: string
+          format: date-time
+          description: Begin of the exception. In UTC
+        period_end:
+          type: string
+          format: date-time
+          description: End of the exception. In UTC
+      required:
+        - period_begin
+        - period_end
+
+    EnergyMix:
+      type: object
+      description: Energy mix and environmental impact of the supplied energy at a location
+      properties:
+        is_green_energy:
+          type: boolean
+          description: True if 100% from regenerative sources
+        energy_sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergySource'
+          description: Key-value pairs of energy sources of this location's tariff
+        environ_impact:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvironmentalImpact'
+          description: Key-value pairs of nuclear waste and CO2 exhaust of this location's tariff
+        supplier_name:
+          type: string
+          maxLength: 64
+          description: Name of the energy supplier, delivering the energy for this location or tariff
+        energy_product_name:
+          type: string
+          maxLength: 64
+          description: Name of the energy suppliers product/tariff plan used at this location
+      required:
+        - is_green_energy
+
+    EnergySource:
+      type: object
+      description: Key-value pairs of energy sources
+      properties:
+        source:
+          $ref: '#/components/schemas/EnergySourceCategory'
+        percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Percentage of this source (0-100) in the mix
+      required:
+        - source
+        - percentage
+
+    EnergySourceCategory:
+      type: string
+      description: Categories of energy sources
+      enum:
+        - NUCLEAR
+        - GENERAL_FOSSIL
+        - COAL
+        - GAS
+        - GENERAL_GREEN
+        - SOLAR
+        - WIND
+        - WATER
+
+    EnvironmentalImpact:
+      type: object
+      description: Amount of waste produced/emitted per kWh
+      properties:
+        category:
+          $ref: '#/components/schemas/EnvironmentalImpactCategory'
+        amount:
+          type: number
+          description: Amount of this portion in g/kWh
+      required:
+        - category
+        - amount
+
+    EnvironmentalImpactCategory:
+      type: string
+      description: Categories of environmental impact values
+      enum:
+        - NUCLEAR_WASTE
+        - CARBON_DIOXIDE
+
+    StatusSchedule:
+      type: object
+      description: This type is used to schedule status periods in the future
+      properties:
+        period_begin:
+          type: string
+          format: date-time
+          description: Begin of the scheduled period
+        period_end:
+          type: string
+          format: date-time
+          description: End of the scheduled period, if known
+        status:
+          $ref: '#/components/schemas/Status'
+      required:
+        - period_begin
+        - status
+
+    EVSEParking:
+      type: object
+      description: A link between an EVSE and a Parking object
+      properties:
+        parking_id:
+          allOf:
+            - $ref: '#/components/schemas/CiString'
+            - maxLength: 36
+              description: The ID of the Parking
+        evse_position:
+          $ref: '#/components/schemas/EVSEPosition'
+      required:
+        - parking_id
+
+    EVSEPosition:
+      type: string
+      description: The position of an EVSE relative to the EVSE's parking space
+      enum:
+        - LEFT
+        - RIGHT
+        - CENTER
+
+paths:
+  # CPO Sender Interface Endpoints
+  /locations:
+    get:
+      tags:
+        - CPO Sender Interface
+      summary: Get list of locations
+      description: |
+        Fetch a list of Locations, optionally filtered by last_updated dates.
+        This endpoint supports pagination.
+      parameters:
+        - name: date_from
+          in: query
+          description: Only return Locations that have last_updated after or equal to this Date/Time (inclusive)
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2019-01-28T12:00:00Z"
+        - name: date_to
+          in: query
+          description: Only return Locations that have last_updated up to this Date/Time, but not including (exclusive)
+          required: false
+          schema:
+            type: string
+            format: date-time
+            example: "2019-01-29T12:00:00Z"
+        - name: offset
+          in: query
+          description: The offset of the first object returned. Default is 0
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: Maximum number of objects to GET
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successful response with list of locations
+          headers:
+            X-Total-Count:
+              description: Total number of locations (for pagination)
+              schema:
+                type: integer
+            X-Limit:
+              description: Maximum number of objects returned
+              schema:
+                type: integer
+            Link:
+              description: Link header for pagination (next, prev, first, last)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+                  status_code:
+                    type: integer
+                    example: 1000
+                  status_message:
+                    type: string
+                    example: "Success"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /locations/{location_id}:
+    get:
+      tags:
+        - CPO Sender Interface
+      summary: Get specific location
+      description: Retrieve information about a specific Location
+      parameters:
+        - name: location_id
+          in: path
+          required: true
+          description: Location.id of the Location object to retrieve
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      responses:
+        '200':
+          description: Successful response with location data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
+                  status_code:
+                    type: integer
+                    example: 1000
+                  status_message:
+                    type: string
+                    example: "Success"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /locations/{location_id}/{evse_uid}:
+    get:
+      tags:
+        - CPO Sender Interface
+      summary: Get specific EVSE
+      description: Retrieve information about a specific EVSE
+      parameters:
+        - name: location_id
+          in: path
+          required: true
+          description: Location.id of the Location that contains the EVSE
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: evse_uid
+          in: path
+          required: true
+          description: Evse.uid of the EVSE object to retrieve
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      responses:
+        '200':
+          description: Successful response with EVSE data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/EVSE'
+                  status_code:
+                    type: integer
+                    example: 1000
+                  status_message:
+                    type: string
+                    example: "Success"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /locations/{location_id}/{evse_uid}/{connector_id}:
+    get:
+      tags:
+        - CPO Sender Interface
+      summary: Get specific connector
+      description: Retrieve information about a specific Connector
+      parameters:
+        - name: location_id
+          in: path
+          required: true
+          description: Location.id of the Location that contains the Connector
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: evse_uid
+          in: path
+          required: true
+          description: Evse.uid of the EVSE that contains the Connector
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: connector_id
+          in: path
+          required: true
+          description: Connector.id of the Connector object to retrieve
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      responses:
+        '200':
+          description: Successful response with connector data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Connector'
+                  status_code:
+                    type: integer
+                    example: 1000
+                  status_message:
+                    type: string
+                    example: "Success"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # eMSP Receiver Interface Endpoints
+  /locations/{country_code}/{party_id}/{location_id}:
+    get:
+      tags:
+        - eMSP Receiver Interface
+      summary: Retrieve location from eMSP system
+      description: |
+        Retrieve a Location as it is stored in the eMSP system.
+        Used by CPO to validate the object in the eMSP's system.
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          description: Country code of the CPO requesting data from the eMSP system
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          description: Party ID (Provider ID) of the CPO requesting data from the eMSP system
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          description: Location.id of the Location object to retrieve
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      responses:
+        '200':
+          description: Successful response with location data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Location'
+                  status_code:
+                    type: integer
+                    example: 1000
+                  status_message:
+                    type: string
+                    example: "Success"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - eMSP Receiver Interface
+      summary: Push new/updated Location to eMSP
+      description: |
+        Push new/updated Location, EVSE and/or Connector to the eMSP.
+        PUT can be used to send new Location objects to the eMSP but also to replace existing Locations.
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          description: Country code of the CPO requesting this PUT to the eMSP system
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          description: Party ID (Provider ID) of the CPO requesting this PUT to the eMSP system
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          description: Location.id of the new Location object, or the Location of which an EVSE or Connector object is pushed
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/Location'
+                - $ref: '#/components/schemas/EVSE'
+                - $ref: '#/components/schemas/Connector'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OCPIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      tags:
+        - eMSP Receiver Interface
+      summary: Notify eMSP of partial updates
+      description: |
+        Notify the eMSP of partial updates to a Location, EVSE or Connector (such as the status).
+        Only the fields/objects that have to be updated have to be present.
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          description: Country code of the CPO requesting this PATCH to the eMSP system
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          description: Party ID (Provider ID) of the CPO requesting this PATCH to the eMSP system
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          description: Location.id of the Location object to update
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  description: Partial Location object with only changed fields
+                  properties:
+                    last_updated:
+                      type: string
+                      format: date-time
+                      description: Timestamp when this Location was last updated (required for PATCH)
+                  required:
+                    - last_updated
+                - type: object
+                  description: Partial EVSE object with only changed fields
+                  properties:
+                    last_updated:
+                      type: string
+                      format: date-time
+                      description: Timestamp when this EVSE was last updated (required for PATCH)
+                  required:
+                    - last_updated
+                - type: object
+                  description: Partial Connector object with only changed fields
+                  properties:
+                    last_updated:
+                      type: string
+                      format: date-time
+                      description: Timestamp when this Connector was last updated (required for PATCH)
+                  required:
+                    - last_updated
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OCPIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /locations/{country_code}/{party_id}/{location_id}/{evse_uid}:
+    get:
+      tags:
+        - eMSP Receiver Interface
+      summary: Retrieve EVSE from eMSP system
+      description: Retrieve an EVSE as it is stored in the eMSP system
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: evse_uid
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      responses:
+        '200':
+          description: Successful response with EVSE data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/EVSE'
+                  status_code:
+                    type: integer
+                    example: 1000
+                  status_message:
+                    type: string
+                    example: "Success"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - eMSP Receiver Interface
+      summary: Push EVSE to eMSP
+      description: Push new/updated EVSE to the eMSP
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: evse_uid
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EVSE'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OCPIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      tags:
+        - eMSP Receiver Interface
+      summary: Update EVSE in eMSP system
+      description: Notify eMSP of partial updates to an EVSE
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: evse_uid
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Partial EVSE object with only changed fields
+              properties:
+                last_updated:
+                  type: string
+                  format: date-time
+                  description: Timestamp when this EVSE was last updated (required for PATCH)
+              required:
+                - last_updated
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OCPIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /locations/{country_code}/{party_id}/{location_id}/{evse_uid}/{connector_id}:
+    get:
+      tags:
+        - eMSP Receiver Interface
+      summary: Retrieve connector from eMSP system
+      description: Retrieve a Connector as it is stored in the eMSP system
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: evse_uid
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: connector_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      responses:
+        '200':
+          description: Successful response with connector data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Connector'
+                  status_code:
+                    type: integer
+                    example: 1000
+                  status_message:
+                    type: string
+                    example: "Success"
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - eMSP Receiver Interface
+      summary: Push connector to eMSP
+      description: Push new/updated Connector to the eMSP
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: evse_uid
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: connector_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Connector'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OCPIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      tags:
+        - eMSP Receiver Interface
+      summary: Update connector in eMSP system
+      description: Notify eMSP of partial updates to a Connector
+      parameters:
+        - name: country_code
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 2
+        - name: party_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 3
+        - name: location_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: evse_uid
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+        - name: connector_id
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/CiString'
+              - maxLength: 36
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Partial Connector object with only changed fields
+              properties:
+                last_updated:
+                  type: string
+                  format: date-time
+                  description: Timestamp when this Connector was last updated (required for PATCH)
+              required:
+                - last_updated
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OCPIResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
