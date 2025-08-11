@@ -582,6 +582,15 @@ components:
         - OTHER
         - OWNER
 
+    TokenType:
+      type: string
+      description: Type of the token
+      enum:
+        - AD_HOC_USER
+        - APP_USER
+        - OTHER
+        - RFID
+
     PublishTokenType:
       type: object
       description: Defines the set of values that identify a token to which a Location might be published
@@ -592,8 +601,7 @@ components:
             - maxLength: 36
               description: Unique ID by which this Token can be identified
         type:
-          type: string
-          description: Type of the token
+          $ref: '#/components/schemas/TokenType'
         visual_number:
           type: string
           maxLength: 64
@@ -1152,7 +1160,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  # eMSP Receiver Interface Endpoints
+  # eMSP Receiver Interface
   /locations/{country_code}/{party_id}/{location_id}:
     get:
       tags:
