@@ -911,11 +911,12 @@ components:
         - CENTER
 
 paths:
-  # CPO Sender Interface Endpoints
+  # CPO Sender Interface
   /locations:
     get:
       tags:
         - CPO Sender Interface
+        - Locations Module
       summary: Get list of locations
       description: |
         Fetch a list of Locations, optionally filtered by last_updated dates.
@@ -999,6 +1000,7 @@ paths:
     get:
       tags:
         - CPO Sender Interface
+        - Locations Module
       summary: Get specific location
       description: Retrieve information about a specific Location
       parameters:
@@ -1042,6 +1044,7 @@ paths:
     get:
       tags:
         - CPO Sender Interface
+        - Locations Module
       summary: Get specific EVSE
       description: Retrieve information about a specific EVSE
       parameters:
@@ -1093,6 +1096,7 @@ paths:
     get:
       tags:
         - CPO Sender Interface
+        - Locations Module
       summary: Get specific connector
       description: Retrieve information about a specific Connector
       parameters:
@@ -1153,6 +1157,7 @@ paths:
     get:
       tags:
         - eMSP Receiver Interface
+        - Locations Module
       summary: Retrieve location from eMSP system
       description: |
         Retrieve a Location as it is stored in the eMSP system.
@@ -1346,6 +1351,7 @@ paths:
     get:
       tags:
         - eMSP Receiver Interface
+        - Locations Module
       summary: Retrieve EVSE from eMSP system
       description: Retrieve an EVSE as it is stored in the eMSP system
       parameters:
@@ -1523,6 +1529,7 @@ paths:
     get:
       tags:
         - eMSP Receiver Interface
+        - Locations Module
       summary: Retrieve connector from eMSP system
       description: Retrieve a Connector as it is stored in the eMSP system
       parameters:
