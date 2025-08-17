@@ -1,0 +1,23 @@
+{
+  "name": "ocpi-openapi-bundler",
+  "version": "1.0.0",
+  "description": "OpenAPI bundling script for OCPI 2.3.0 specification",
+  "main": "bundle.js",
+  "scripts": {
+    "bundle": "node bundle.js",
+    "validate": "node validate.js",
+    "test": "npm run bundle && npm run validate"
+  },
+  "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "js-yaml": "^4.1.0",
+    "mkdirp": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.5",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": ["ocpi", "openapi", "bundling", "ev-charging"],
+  "author": "OCPI Community",
+  "license": "CC-BY-SA-4.0"
+}

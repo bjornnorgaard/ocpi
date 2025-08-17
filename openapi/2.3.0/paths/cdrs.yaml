@@ -1,0 +1,104 @@
+paths:
+  /{version}/cdrs:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+    get:
+      tags: [CDRs]
+      summary: Get all CDRs
+      responses:
+        '200':
+          description: List of CDRs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/cdrs.yaml#/schemas/CDRList
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+  /{version}/cdrs/{country_code}/{party_id}:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+      - $ref: ../components/parameters/common.yaml#/parameters/CountryCode
+      - $ref: ../components/parameters/common.yaml#/parameters/PartyId
+    get:
+      tags: [CDRs]
+      summary: Get CDRs for party
+      responses:
+        '200':
+          description: List of CDRs for party
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/cdrs.yaml#/schemas/CDRList
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+  /{version}/cdrs/{country_code}/{party_id}/{cdr_id}:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+      - $ref: ../components/parameters/common.yaml#/parameters/CountryCode
+      - $ref: ../components/parameters/common.yaml#/parameters/PartyId
+      - $ref: ../components/parameters/common.yaml#/parameters/CdrId
+    get:
+      tags: [CDRs]
+      summary: Get specific CDR
+      responses:
+        '200':
+          description: CDR details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/common.yaml#/schemas/CDR
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+    post:
+      tags: [CDRs]
+      summary: Create new CDR
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/schemas/CDR
+      responses:
+        '201':
+          description: CDR created successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError

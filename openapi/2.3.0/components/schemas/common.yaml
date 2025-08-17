@@ -1,0 +1,449 @@
+schemas:
+  OCPIResponse:
+    type: object
+    required: [status_code, timestamp]
+    properties:
+      status_code:
+        type: integer
+      status_message:
+        type: string
+        nullable: true
+      timestamp:
+        type: string
+        format: date-time
+      data:
+        nullable: true
+        description: Endpoint-specific data body
+      total_count:
+        type: integer
+        nullable: true
+      limit:
+        type: integer
+        nullable: true
+  Version:
+    type: object
+    required: [version, url]
+    properties:
+      version:
+        type: string
+        example: "2.3"
+      url:
+        type: string
+        format: uri
+  Endpoint:
+    type: object
+    required: [identifier, url]
+    properties:
+      identifier:
+        type: string
+      role:
+        type: string
+        $ref: ../schemas/enums.yaml#/schemas/InterfaceRole
+      url:
+        type: string
+        format: uri
+  BusinessDetails:
+    type: object
+    required: [name]
+    properties:
+      name: { type: string }
+      website: { type: string, format: uri, nullable: true }
+      logo:
+        $ref: '#/schemas/Image'
+  Image:
+    type: object
+    properties:
+      url: { type: string, format: uri }
+      thumbnail: { type: string, format: uri }
+      category: { $ref: ../schemas/enums.yaml#/schemas/ImageCategory }
+      type: { $ref: ../schemas/enums.yaml#/schemas/ImageType }
+      width: { type: integer }
+      height: { type: integer }
+  DisplayText:
+    type: object
+    required: [language, text]
+    properties:
+      language:
+        type: string
+        pattern: '^[a-z]{2}$'
+      text: { type: string }
+  GeoLocation:
+    type: object
+    required: [latitude, longitude]
+    properties:
+      latitude: { type: string }
+      longitude: { type: string }
+  AdditionalGeoLocation:
+    allOf:
+      - $ref: '#/schemas/GeoLocation'
+      - type: object
+        properties:
+          name: { type: string }
+  EnergySource:
+    type: object
+    properties:
+      source: { $ref: ../schemas/enums.yaml#/schemas/EnergySourceCategory }
+      percentage: { type: number }
+  EnvironmentalImpact:
+    type: object
+    properties:
+      category: { $ref: ../schemas/enums.yaml#/schemas/EnvironmentalImpactCategory }
+      amount: { type: number }
+  EnergyMix:
+    type: object
+    properties:
+      is_green_energy: { type: boolean }
+      energy_sources:
+        type: array
+        items: { $ref: '#/schemas/EnergySource' }
+      environ_impact:
+        type: array
+        items: { $ref: '#/schemas/EnvironmentalImpact' }
+      supplier_name: { type: string }
+      energy_product_name: { type: string }
+  StatusSchedule:
+    type: object
+    properties:
+      period_begin: { type: string, format: date-time }
+      period_end: { type: string, format: date-time }
+      status: { $ref: ../schemas/enums.yaml#/schemas/EVSEStatus }
+  PublishTokenType:
+    type: object
+    properties:
+      uid: { type: string }
+      type: { $ref: ../schemas/enums.yaml#/schemas/TokenType }
+      visual_number: { type: string }
+      issuer: { type: string }
+      group_id: { type: string }
+  Price:
+    type: object
+    properties:
+      excl_vat: { type: number }
+      incl_vat: { type: number }
+  PriceComponent:
+    type: object
+    required: [type, price, step_size]
+    properties:
+      type: { $ref: ../schemas/enums.yaml#/schemas/TariffDimensionType }
+      price: { type: number }
+      vat: { type: number, nullable: true }
+      step_size: { type: integer }
+  TariffRestriction:
+    type: object
+    properties:
+      start_time: { type: string, pattern: '^([0-1][0-9]|2[0-3]):[0-5][0-9]$' }
+      end_time: { type: string, pattern: '^([0-1][0-9]|2[0-3]):[0-5][0-9]$' }
+      start_date: { type: string, format: date }
+      end_date: { type: string, format: date }
+      min_kwh: { type: number }
+      max_kwh: { type: number }
+      min_power: { type: number }
+      max_power: { type: number }
+      min_duration: { type: integer }
+      max_duration: { type: integer }
+      day_of_week:
+        type: array
+        items:
+          type: string
+          enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+  TariffElement:
+    type: object
+    properties:
+      price_components:
+        type: array
+        items: { $ref: '#/schemas/PriceComponent' }
+      restrictions: { $ref: '#/schemas/TariffRestriction' }
+  ChargingPeriodDimension:
+    type: object
+    properties:
+      type: { $ref: ../schemas/enums.yaml#/schemas/TariffDimensionType }
+      volume: { type: number }
+  ChargingPeriod:
+    type: object
+    properties:
+      start_date_time: { type: string, format: date-time }
+      dimensions:
+        type: array
+        items: { $ref: '#/schemas/ChargingPeriodDimension' }
+      tariff_id: { type: string }
+  SignedValue:
+    type: object
+    properties:
+      nature: { type: string }
+      plain_data: { type: string }
+      signed_data: { type: string }
+  SignedData:
+    type: object
+    properties:
+      encoding_method: { type: string }
+      public_key: { type: string }
+      signed_values:
+        type: array
+        items: { $ref: '#/schemas/SignedValue' }
+  Connector:
+    type: object
+    required: [id, standard, format, power_type]
+    properties:
+      id: { type: string, maxLength: 36 }
+      standard: { $ref: ../schemas/enums.yaml#/schemas/ConnectorType }
+      format: { $ref: ../schemas/enums.yaml#/schemas/ConnectorFormat }
+      power_type: { $ref: ../schemas/enums.yaml#/schemas/PowerType }
+      max_voltage: { type: integer }
+      max_amperage: { type: integer }
+      max_electric_power: { type: integer }
+      tariff_ids:
+        type: array
+        items: { type: string }
+      terms_and_conditions: { type: string, format: uri }
+      last_updated: { type: string, format: date-time }
+  EVSE:
+    type: object
+    required: [uid, status, connectors, last_updated]
+    properties:
+      uid: { type: string, maxLength: 48 }
+      evse_id: { type: string }
+      status: { $ref: ../schemas/enums.yaml#/schemas/EVSEStatus }
+      status_schedule:
+        type: array
+        items: { $ref: '#/schemas/StatusSchedule' }
+      capabilities:
+        type: array
+        items: { $ref: ../schemas/enums.yaml#/schemas/Capability }
+      connectors:
+        type: array
+        items: { $ref: '#/schemas/Connector' }
+      floor_level: { type: string }
+      coordinates: { $ref: '#/schemas/GeoLocation' }
+      physical_reference: { type: string }
+      directions:
+        type: array
+        items: { $ref: '#/schemas/DisplayText' }
+      parking_restrictions:
+        type: array
+        items: { type: string }
+      images:
+        type: array
+        items: { $ref: '#/schemas/Image' }
+      last_updated: { type: string, format: date-time }
+  Location:
+    type: object
+    required: [id, address, city, country, coordinates, last_updated]
+    properties:
+      id: { type: string }
+      type: { $ref: ../schemas/enums.yaml#/schemas/LocationType }
+      name: { type: string }
+      address: { type: string }
+      city: { type: string }
+      postal_code: { type: string }
+      country: { type: string }
+      coordinates: { $ref: '#/schemas/GeoLocation' }
+      related_locations:
+        type: array
+        items: { $ref: '#/schemas/AdditionalGeoLocation' }
+      parking_type: { $ref: ../schemas/enums.yaml#/schemas/ParkingType }
+      evses:
+        type: array
+        items: { $ref: '#/schemas/EVSE' }
+      operator: { $ref: '#/schemas/BusinessDetails' }
+      suboperator: { $ref: '#/schemas/BusinessDetails' }
+      owner: { $ref: '#/schemas/BusinessDetails' }
+      facilities:
+        type: array
+        items: { type: string }
+      time_zone: { type: string }
+      opening_times:
+        type: object
+        properties:
+          twentyfourseven: { type: boolean }
+          regular_hours:
+            type: array
+            items:
+              type: object
+              properties:
+                weekday: { type: integer, minimum: 1, maximum: 7 }
+                period_begin: { type: string, pattern: '^([0-1][0-9]|2[0-3]):[0-5][0-9]$' }
+                period_end: { type: string, pattern: '^([0-1][0-9]|2[0-3]):[0-5][0-9]$' }
+          exceptional_openings:
+            type: array
+            items:
+              type: object
+              properties:
+                period_begin: { type: string, format: date-time }
+                period_end: { type: string, format: date-time }
+          exceptional_closings:
+            type: array
+            items:
+              type: object
+              properties:
+                period_begin: { type: string, format: date-time }
+                period_end: { type: string, format: date-time }
+      charging_when_closed: { type: boolean }
+      images:
+        type: array
+        items: { $ref: '#/schemas/Image' }
+      energy_mix: { $ref: '#/schemas/EnergyMix' }
+      last_updated: { type: string, format: date-time }
+  Tariff:
+    type: object
+    required: [id, currency, elements, last_updated]
+    properties:
+      id: { type: string }
+      currency: { type: string, pattern: '^[A-Z]{3}$' }
+      tariff_alt_text:
+        type: array
+        items: { $ref: '#/schemas/DisplayText' }
+      tariff_alt_url: { type: string, format: uri }
+      min_price: { $ref: '#/schemas/Price' }
+      max_price: { $ref: '#/schemas/Price' }
+      elements:
+        type: array
+        items: { $ref: '#/schemas/TariffElement' }
+      start_date_time: { type: string, format: date-time }
+      end_date_time: { type: string, format: date-time }
+      energy_mix: { $ref: '#/schemas/EnergyMix' }
+      last_updated: { type: string, format: date-time }
+  TokenEnergyContract:
+    type: object
+    properties:
+      supplier_name: { type: string }
+      contract_id: { type: string }
+  Token:
+    type: object
+    required: [uid, type, auth_id, issuer, valid, last_updated]
+    properties:
+      uid: { type: string }
+      type: { $ref: ../schemas/enums.yaml#/schemas/TokenType }
+      auth_id: { type: string }
+      visual_number: { type: string }
+      issuer: { type: string }
+      group_id: { type: string }
+      valid: { type: boolean }
+      whitelist: { $ref: ../schemas/enums.yaml#/schemas/WhitelistType }
+      language: { type: string, pattern: '^[a-z]{2}$' }
+      default_profile_type: { $ref: ../schemas/enums.yaml#/schemas/ProfileType }
+      energy_contract: { $ref: '#/schemas/TokenEnergyContract' }
+      last_updated: { type: string, format: date-time }
+  AuthorizationInfo:
+    type: object
+    required: [allowed, token]
+    properties:
+      allowed: { $ref: ../schemas/enums.yaml#/schemas/AllowedType }
+      token: { $ref: '#/schemas/Token' }
+      location: { $ref: '#/schemas/Location' }
+      authorization_reference: { type: string }
+      info:
+        type: array
+        items: { $ref: '#/schemas/DisplayText' }
+  Session:
+    type: object
+    required: [id, start_date_time, kwh, auth_id, auth_method, location_id, currency, status, last_updated]
+    properties:
+      id: { type: string }
+      start_date_time: { type: string, format: date-time }
+      end_date_time: { type: string, format: date-time }
+      kwh: { type: number }
+      cdr_token: { $ref: '#/schemas/Token' }
+      auth_id: { type: string }
+      auth_method: { $ref: ../schemas/enums.yaml#/schemas/AuthMethod }
+      authorization_reference: { type: string }
+      location_id: { type: string }
+      evse_uid: { type: string }
+      connector_id: { type: string }
+      meter_id: { type: string }
+      currency: { type: string, pattern: '^[A-Z]{3}$' }
+      charging_periods:
+        type: array
+        items: { $ref: '#/schemas/ChargingPeriod' }
+      total_cost: { type: number }
+      total_fixed_cost: { type: number }
+      status: { $ref: ../schemas/enums.yaml#/schemas/SessionStatus }
+      last_updated: { type: string, format: date-time }
+  CDR:
+    type: object
+    required: [id, start_date_time, end_date_time, cdr_token, auth_method, location, currency, charging_periods, total_cost, total_energy, last_updated]
+    properties:
+      id: { type: string }
+      start_date_time: { type: string, format: date-time }
+      end_date_time: { type: string, format: date-time }
+      session_id: { type: string }
+      cdr_token: { $ref: '#/schemas/Token' }
+      auth_method: { $ref: ../schemas/enums.yaml#/schemas/AuthMethod }
+      authorization_reference: { type: string }
+      location: { $ref: '#/schemas/Location' }
+      meter_id: { type: string }
+      currency: { type: string, pattern: '^[A-Z]{3}$' }
+      tariffs:
+        type: array
+        items: { $ref: '#/schemas/Tariff' }
+      charging_periods:
+        type: array
+        items: { $ref: '#/schemas/ChargingPeriod' }
+      signed_data: { $ref: '#/schemas/SignedData' }
+      total_cost: { type: number }
+      total_fixed_cost: { type: number }
+      total_energy: { type: number }
+      total_time: { type: number }
+      total_parking_time: { type: number }
+      remark: { type: string }
+      last_updated: { type: string, format: date-time }
+  Command:
+    type: object
+    required: [command, response_url]
+    properties:
+      command: { $ref: ../schemas/enums.yaml#/schemas/CommandType }
+      response_url: { type: string, format: uri }
+      timeout: { type: integer }
+      session_id: { type: string }
+      reservation_id: { type: string }
+      location_id: { type: string }
+      evse_uid: { type: string }
+      connector_id: { type: string }
+  CommandResponse:
+    type: object
+    required: [result]
+    properties:
+      result: { $ref: ../schemas/enums.yaml#/schemas/CommandResultType }
+      timeout: { type: boolean }
+      message: { type: string }
+  CredentialsRole:
+    type: object
+    required: [role, party_id, country_code]
+    properties:
+      role: { $ref: ../schemas/enums.yaml#/schemas/InterfaceRole }
+      business_details: { $ref: '#/schemas/BusinessDetails' }
+      party_id: { type: string }
+      country_code: { type: string }
+  CredentialsObject:
+    type: object
+    required: [token, url, roles]
+    properties:
+      token: { type: string }
+      url: { type: string, format: uri }
+      roles:
+        type: array
+        items: { $ref: '#/schemas/CredentialsRole' }
+  ChargingProfilePeriod:
+    type: object
+    required: [start_period, limit]
+    properties:
+      start_period: { type: integer }
+      limit: { type: number }
+  ChargingProfile:
+    type: object
+    required: [charging_rate_unit, charging_profile_period]
+    properties:
+      start_date_time: { type: string, format: date-time }
+      duration: { type: integer }
+      charging_rate_unit: { $ref: ../schemas/enums.yaml#/schemas/ChargingRateUnit }
+      min_charging_rate: { type: number }
+      charging_profile_period:
+        type: array
+        items: { $ref: '#/schemas/ChargingProfilePeriod' }
+  ClientInfo:
+    type: object
+    required: [country_code, party_id, role, last_updated]
+    properties:
+      country_code: { type: string }
+      party_id: { type: string }
+      role: { $ref: ../schemas/enums.yaml#/schemas/InterfaceRole }
+      last_updated: { type: string, format: date-time }

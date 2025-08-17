@@ -1,0 +1,22 @@
+schemas:
+  LocationList:
+    type: array
+    items: { $ref: ../schemas/common.yaml#/schemas/Location }
+  LocationPatch:
+    type: object
+    description: Partial Location update
+    properties:
+      name: { type: string }
+      last_updated: { type: string, format: date-time }
+  EVSEPatch:
+    type: object
+    description: Partial EVSE update
+    properties:
+      status: { $ref: ../schemas/enums.yaml#/schemas/EVSEStatus }
+      last_updated: { type: string, format: date-time }
+  ConnectorPatch:
+    type: object
+    description: Partial Connector update
+    properties:
+      max_electric_power: { type: integer }
+      last_updated: { type: string, format: date-time }

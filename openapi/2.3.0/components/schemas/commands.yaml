@@ -1,0 +1,5 @@
+schemas:
+  CommandRequest:
+    $ref: ../schemas/common.yaml#/schemas/Command
+  CommandResponse:
+    $ref: ../schemas/common.yaml#/schemas/CommandResponse

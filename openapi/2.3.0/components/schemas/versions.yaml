@@ -1,0 +1,8 @@
+schemas:
+  VersionDetails:
+    type: object
+    properties:
+      version: { type: string }
+      endpoints:
+        type: array
+        items: { $ref: ../schemas/common.yaml#/schemas/Endpoint }

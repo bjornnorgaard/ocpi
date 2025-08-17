@@ -1,0 +1,58 @@
+paths:
+  /{version}/commands:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+    post:
+      tags: [Commands]
+      summary: Send command
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/commands.yaml#/schemas/CommandRequest
+      responses:
+        '200':
+          description: Command accepted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/commands.yaml#/schemas/CommandResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+  /{version}/commands/{command_id}:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+      - $ref: ../components/parameters/common.yaml#/parameters/CommandId
+    get:
+      tags: [Commands]
+      summary: Get command status
+      responses:
+        '200':
+          description: Command status
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/commands.yaml#/schemas/CommandResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError

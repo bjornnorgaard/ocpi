@@ -1,0 +1,4 @@
+schemas:
+  TariffList:
+    type: array
+    items: { $ref: ../schemas/common.yaml#/schemas/Tariff }
