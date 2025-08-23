@@ -1,0 +1,49 @@
+paths:
+  /{version}/chargingprofiles:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+    get:
+      tags: [ChargingProfiles]
+      summary: Get charging profiles
+      responses:
+        '200':
+          description: List of charging profiles
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: ../components/schemas/common.yaml#/schemas/ChargingProfile
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+    post:
+      tags: [ChargingProfiles]
+      summary: Create charging profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/schemas/ChargingProfile
+      responses:
+        '201':
+          description: Charging profile created successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError

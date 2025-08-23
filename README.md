@@ -14,6 +14,35 @@ Development of the next version of OCPI, new functionality, is done in the  [ocp
 
 More background on OCPI, its development and its contributors can be found on the EV Roaming Foundation website.
 
+## OpenAPI Specification
+
+This repository now includes a comprehensive OpenAPI 3.1.0 specification for OCPI 2.3.0 located in `openapi/2.3.0/`. This machine-readable API specification enables:
+
+- **API Documentation** - Generate interactive documentation
+- **Code Generation** - Generate client SDKs and server stubs
+- **API Testing** - Import into testing tools like Postman
+- **Integration** - Use with OpenAPI-compatible tools
+
+### Quick Start
+
+```bash
+# Navigate to OpenAPI directory
+cd openapi/2.3.0
+
+# Install dependencies
+npm install
+
+# Generate bundled specification
+npm run bundle
+
+# Validate specifications
+npm run validate
+```
+
+The bundled specification is output to `openapi/2.3.0/dist/ocpi-2.3.0-bundled.yaml`.
+
+See `openapi/2.3.0/README.md` for detailed documentation.
+
 ## Building Process
 
 The OCPI Build Process has been improved. OCPI 2.0/2.1.1 was in markdown format, and diagrams where Plantuml.

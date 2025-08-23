@@ -1,0 +1,109 @@
+openapi: 3.1.0
+info:
+  title: OCPI 2.3.0 API
+  version: 2.3.0
+  description: |
+    Comprehensive OpenAPI 3.1.0 specification for OCPI (Open Charge Point Interface) version 2.3.0.
+    Split across multiple files for maintainability. Enumerations and shared schemas consolidated under components.
+    Source: https://github.com/ocpi/ocpi (reference standard). This representation aims to cover all core and optional modules
+    in OCPI 2.3.0: Versions, Credentials, Locations, Tariffs, Tokens, Sessions, CDRs, Commands, Charging Profiles,
+    Hub Client Info. Validate against official spec before production use.
+  license:
+    name: CC BY-SA 4.0
+    url: https://creativecommons.org/licenses/by-sa/4.0/
+servers:
+  - url: https://example.com/ocpi
+    description: Example base OCPI endpoint (root exposing /versions)
+security:
+  - OCPI_Token: []
+tags:
+  - name: Versions
+  - name: Credentials
+  - name: Locations
+  - name: Tariffs
+  - name: Tokens
+  - name: Sessions
+  - name: CDRs
+  - name: Commands
+  - name: ChargingProfiles
+  - name: HubClientInfo
+x-ocpi-version: 2.3.0
+paths:
+  /versions:
+    $ref: ./paths/versions.yaml#/paths/~1versions
+  /{version}/versions:
+    $ref: ./paths/versions.yaml#/paths/~1{version}~1versions
+  /{version}/credentials:
+    $ref: ./paths/credentials.yaml#/paths/~1{version}~1credentials
+  /{version}/locations:
+    $ref: ./paths/locations.yaml#/paths/~1{version}~1locations
+  /{version}/locations/{country_code}/{party_id}:
+    $ref: ./paths/locations.yaml#/paths/~1{version}~1locations~1{country_code}~1{party_id}
+  /{version}/locations/{country_code}/{party_id}/{location_id}:
+    $ref: ./paths/locations.yaml#/paths/~1{version}~1locations~1{country_code}~1{party_id}~1{location_id}
+  /{version}/locations/{country_code}/{party_id}/{location_id}/{evse_uid}:
+    $ref: ./paths/locations.yaml#/paths/~1{version}~1locations~1{country_code}~1{party_id}~1{location_id}~1{evse_uid}
+  /{version}/locations/{country_code}/{party_id}/{location_id}/{evse_uid}/{connector_id}:
+    $ref: ./paths/locations.yaml#/paths/~1{version}~1locations~1{country_code}~1{party_id}~1{location_id}~1{evse_uid}~1{connector_id}
+  /{version}/tariffs:
+    $ref: ./paths/tariffs.yaml#/paths/~1{version}~1tariffs
+  /{version}/tariffs/{country_code}/{party_id}:
+    $ref: ./paths/tariffs.yaml#/paths/~1{version}~1tariffs~1{country_code}~1{party_id}
+  /{version}/tariffs/{country_code}/{party_id}/{tariff_id}:
+    $ref: ./paths/tariffs.yaml#/paths/~1{version}~1tariffs~1{country_code}~1{party_id}~1{tariff_id}
+  /{version}/tokens:
+    $ref: ./paths/tokens.yaml#/paths/~1{version}~1tokens
+  /{version}/tokens/{country_code}/{party_id}:
+    $ref: ./paths/tokens.yaml#/paths/~1{version}~1tokens~1{country_code}~1{party_id}
+  /{version}/tokens/{country_code}/{party_id}/{token_uid}:
+    $ref: ./paths/tokens.yaml#/paths/~1{version}~1tokens~1{country_code}~1{party_id}~1{token_uid}
+  /{version}/tokens/{country_code}/{party_id}/{token_uid}/authorize:
+    $ref: ./paths/tokens.yaml#/paths/~1{version}~1tokens~1{country_code}~1{party_id}~1{token_uid}~1authorize
+  /{version}/sessions:
+    $ref: ./paths/sessions.yaml#/paths/~1{version}~1sessions
+  /{version}/sessions/{country_code}/{party_id}:
+    $ref: ./paths/sessions.yaml#/paths/~1{version}~1sessions~1{country_code}~1{party_id}
+  /{version}/sessions/{country_code}/{party_id}/{session_id}:
+    $ref: ./paths/sessions.yaml#/paths/~1{version}~1sessions~1{country_code}~1{party_id}~1{session_id}
+  /{version}/cdrs:
+    $ref: ./paths/cdrs.yaml#/paths/~1{version}~1cdrs
+  /{version}/cdrs/{country_code}/{party_id}:
+    $ref: ./paths/cdrs.yaml#/paths/~1{version}~1cdrs~1{country_code}~1{party_id}
+  /{version}/cdrs/{country_code}/{party_id}/{cdr_id}:
+    $ref: ./paths/cdrs.yaml#/paths/~1{version}~1cdrs~1{country_code}~1{party_id}~1{cdr_id}
+  /{version}/commands:
+    $ref: ./paths/commands.yaml#/paths/~1{version}~1commands
+  /{version}/commands/{command_id}:
+    $ref: ./paths/commands.yaml#/paths/~1{version}~1commands~1{command_id}
+  /{version}/chargingprofiles:
+    $ref: ./paths/chargingprofiles.yaml#/paths/~1{version}~1chargingprofiles
+  /{version}/hubclientinfo:
+    $ref: ./paths/hubclientinfo.yaml#/paths/~1{version}~1hubclientinfo
+components:
+  securitySchemes:
+    $ref: ./components/securitySchemes.yaml#/securitySchemes
+  parameters:
+    $ref: ./components/parameters/common.yaml#/parameters
+  responses:
+    $ref: ./components/responses/common.yaml#/responses
+  schemas:
+    common:
+      $ref: ./components/schemas/common.yaml#/schemas
+    enums:
+      $ref: ./components/schemas/enums.yaml#/schemas
+    versions:
+      $ref: ./components/schemas/versions.yaml#/schemas
+    credentials:
+      $ref: ./components/schemas/credentials.yaml#/schemas
+    locations:
+      $ref: ./components/schemas/locations.yaml#/schemas
+    tariffs:
+      $ref: ./components/schemas/tariffs.yaml#/schemas
+    tokens:
+      $ref: ./components/schemas/tokens.yaml#/schemas
+    sessions:
+      $ref: ./components/schemas/sessions.yaml#/schemas
+    cdrs:
+      $ref: ./components/schemas/cdrs.yaml#/schemas
+    commands:
+      $ref: ./components/schemas/commands.yaml#/schemas

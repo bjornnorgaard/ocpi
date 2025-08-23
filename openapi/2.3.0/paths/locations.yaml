@@ -1,0 +1,318 @@
+paths:
+  /{version}/locations:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+      - $ref: ../components/parameters/common.yaml#/parameters/PaginationLimit
+      - $ref: ../components/parameters/common.yaml#/parameters/PaginationOffset
+      - $ref: ../components/parameters/common.yaml#/parameters/DateFrom
+      - $ref: ../components/parameters/common.yaml#/parameters/DateTo
+    get:
+      tags: [Locations]
+      summary: Get all locations
+      description: Retrieve all locations
+      responses:
+        '200':
+          description: List of locations
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/locations.yaml#/schemas/LocationList
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+  /{version}/locations/{country_code}/{party_id}:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+      - $ref: ../components/parameters/common.yaml#/parameters/CountryCode
+      - $ref: ../components/parameters/common.yaml#/parameters/PartyId
+      - $ref: ../components/parameters/common.yaml#/parameters/PaginationLimit
+      - $ref: ../components/parameters/common.yaml#/parameters/PaginationOffset
+      - $ref: ../components/parameters/common.yaml#/parameters/DateFrom
+      - $ref: ../components/parameters/common.yaml#/parameters/DateTo
+    get:
+      tags: [Locations]
+      summary: Get locations for party
+      description: Retrieve locations for specific country and party
+      responses:
+        '200':
+          description: List of locations for party
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/locations.yaml#/schemas/LocationList
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+  /{version}/locations/{country_code}/{party_id}/{location_id}:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+      - $ref: ../components/parameters/common.yaml#/parameters/CountryCode
+      - $ref: ../components/parameters/common.yaml#/parameters/PartyId
+      - $ref: ../components/parameters/common.yaml#/parameters/LocationId
+    get:
+      tags: [Locations]
+      summary: Get specific location
+      description: Retrieve a specific location
+      responses:
+        '200':
+          description: Location details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/common.yaml#/schemas/Location
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+    put:
+      tags: [Locations]
+      summary: Create or update location
+      description: Create or update a location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/schemas/Location
+      responses:
+        '200':
+          description: Location updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '201':
+          description: Location created successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+    patch:
+      tags: [Locations]
+      summary: Partially update location
+      description: Partially update a location
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/locations.yaml#/schemas/LocationPatch
+      responses:
+        '200':
+          description: Location updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+  /{version}/locations/{country_code}/{party_id}/{location_id}/{evse_uid}:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+      - $ref: ../components/parameters/common.yaml#/parameters/CountryCode
+      - $ref: ../components/parameters/common.yaml#/parameters/PartyId
+      - $ref: ../components/parameters/common.yaml#/parameters/LocationId
+      - $ref: ../components/parameters/common.yaml#/parameters/EVSEUid
+    get:
+      tags: [Locations]
+      summary: Get specific EVSE
+      description: Retrieve a specific EVSE
+      responses:
+        '200':
+          description: EVSE details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/common.yaml#/schemas/EVSE
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+    put:
+      tags: [Locations]
+      summary: Create or update EVSE
+      description: Create or update an EVSE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/schemas/EVSE
+      responses:
+        '200':
+          description: EVSE updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '201':
+          description: EVSE created successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+    patch:
+      tags: [Locations]
+      summary: Partially update EVSE
+      description: Partially update an EVSE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/locations.yaml#/schemas/EVSEPatch
+      responses:
+        '200':
+          description: EVSE updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+  /{version}/locations/{country_code}/{party_id}/{location_id}/{evse_uid}/{connector_id}:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+      - $ref: ../components/parameters/common.yaml#/parameters/CountryCode
+      - $ref: ../components/parameters/common.yaml#/parameters/PartyId
+      - $ref: ../components/parameters/common.yaml#/parameters/LocationId
+      - $ref: ../components/parameters/common.yaml#/parameters/EVSEUid
+      - $ref: ../components/parameters/common.yaml#/parameters/ConnectorId
+    get:
+      tags: [Locations]
+      summary: Get specific connector
+      description: Retrieve a specific connector
+      responses:
+        '200':
+          description: Connector details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/common.yaml#/schemas/Connector
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+    put:
+      tags: [Locations]
+      summary: Create or update connector
+      description: Create or update a connector
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/schemas/Connector
+      responses:
+        '200':
+          description: Connector updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '201':
+          description: Connector created successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+    patch:
+      tags: [Locations]
+      summary: Partially update connector
+      description: Partially update a connector
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/locations.yaml#/schemas/ConnectorPatch
+      responses:
+        '200':
+          description: Connector updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '401':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_Unauthorized
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError

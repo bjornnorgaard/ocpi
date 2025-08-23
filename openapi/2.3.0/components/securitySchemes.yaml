@@ -1,0 +1,6 @@
+securitySchemes:
+  OCPI_Token:
+    type: apiKey
+    in: header
+    name: Authorization
+    description: "OCPI access token. Format: 'Token <token>'."

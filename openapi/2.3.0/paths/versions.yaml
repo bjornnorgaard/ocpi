@@ -1,0 +1,51 @@
+paths:
+  /versions:
+    get:
+      tags: [Versions]
+      summary: Get available API versions
+      description: List all available API versions
+      security: []
+      responses:
+        '200':
+          description: List of available versions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: ../components/schemas/common.yaml#/schemas/Version
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError
+  /{version}/versions:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/parameters/VersionParam
+    get:
+      tags: [Versions]
+      summary: Get version details
+      description: Get details for a specific API version including available endpoints
+      security: []
+      responses:
+        '200':
+          description: Version details with endpoints
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: ../components/schemas/common.yaml#/schemas/OCPIResponse
+                  - type: object
+                    properties:
+                      data:
+                        $ref: ../components/schemas/versions.yaml#/schemas/VersionDetails
+        '400':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_BadRequest
+        '404':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_NotFound
+        '500':
+          $ref: ../components/responses/common.yaml#/responses/OCPI_ServerError

@@ -1,0 +1,19 @@
+schemas:
+  TokenList:
+    type: array
+    items: { $ref: ../schemas/common.yaml#/schemas/Token }
+  AuthorizationRequest:
+    type: object
+    required: [token]
+    properties:
+      token: { $ref: ../schemas/common.yaml#/schemas/Token }
+      location_reference:
+        type: object
+        properties:
+          location_id: { type: string }
+          evse_uids:
+            type: array
+            items: { type: string }
+          connector_ids:
+            type: array
+            items: { type: string }

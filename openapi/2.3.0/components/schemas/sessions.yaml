@@ -1,0 +1,12 @@
+schemas:
+  SessionList:
+    type: array
+    items: { $ref: ../schemas/common.yaml#/schemas/Session }
+  SessionPatch:
+    type: object
+    description: Partial session update
+    properties:
+      end_date_time: { type: string, format: date-time }
+      kwh: { type: number }
+      status: { $ref: ../schemas/enums.yaml#/schemas/SessionStatus }
+      last_updated: { type: string, format: date-time }

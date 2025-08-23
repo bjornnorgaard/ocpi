@@ -1,0 +1,67 @@
+schemas:
+  InterfaceRole:
+    type: string
+    enum: [CPO, EMSP, HUB, NAP, NSP, SCSP]
+  AllowedType:
+    type: string
+    enum: [ALLOWED, BLOCKED, EXPIRED, NO_CREDIT, NOT_ALLOWED]
+  TokenType:
+    type: string
+    enum: [AD_HOC_USER, APP_USER, CARD, OTHER, RFID]
+  WhitelistType:
+    type: string
+    enum: [ALWAYS, ALLOWED, ALLOWED_OFFLINE, NEVER]
+  LocationType:
+    type: string
+    enum: [ON_STREET, PARKING_GARAGE, UNDERGROUND_GARAGE, PARKING_LOT, OTHER, PRIVATE, PUBLIC_PARKING]
+  ParkingType:
+    type: string
+    enum: [ALONG_MOTORWAY, PARKING_GARAGE, UNDERGROUND_GARAGE, PARKING_LOT, ON_DRIVEWAY, ON_STREET, NEAR_HIGHWAY, OTHER]
+  EVSEStatus:
+    type: string
+    enum: [AVAILABLE, BLOCKED, CHARGING, INOPERATIVE, OUTOFORDER, PLANNED, REMOVED, RESERVED, UNKNOWN]
+  ConnectorFormat:
+    type: string
+    enum: [SOCKET, CABLE]
+  ConnectorType:
+    type: string
+    enum: [CHADEMO, DOMESTIC_A, DOMESTIC_B, DOMESTIC_C, DOMESTIC_D, DOMESTIC_E, DOMESTIC_F, DOMESTIC_G, DOMESTIC_H, DOMESTIC_I, DOMESTIC_J, DOMESTIC_K, DOMESTIC_L, IEC_62196_T1, IEC_62196_T1_COMBO, IEC_62196_T2, IEC_62196_T2_COMBO, IEC_62196_T3A, IEC_62196_T3C, GBT_AC, GBT_DC, TESLA_R, TESLA_S, PANTOGRAPH_TOP_DOWN, PANTOGRAPH_BOTTOM_UP]
+  PowerType:
+    type: string
+    enum: [AC_1_PHASE, AC_2_PHASE, AC_2_PHASE_SPLIT, AC_3_PHASE, DC]
+  Capability:
+    type: string
+    enum: [CHARGING_PROFILE_CAPABLE, CHARGING_PREFERENCES_CAPABLE, CHIP_PROTOCOL, CONDITION_MODE_CAPABLE, CREDIT_CARD_PAYABLE, DEBIT_CARD_PAYABLE, PED_TERMINAL, RFID_READER, REMOTE_START_STOP_CAPABLE, RESERVABLE, UNLOCK_CAPABLE, NFC_READER, FIRMWARE_UPGRADEABLE, OCPP_J, OCPP_S, ISO_15118, PB_BILLING, V2G, V2X, WIFI, AUTHORIZATION_CACHE, ENERGY_METER, PARKING_SENSORS]
+  ImageCategory:
+    type: string
+    enum: [CHARGER, ENTRANCE, LOCATION, NETWORK, OPERATOR, OTHER, OWNER]
+  ImageType:
+    type: string
+    enum: [GIF, JPEG, PNG, SVG]
+  EnergySourceCategory:
+    type: string
+    enum: [NUCLEAR, GENERAL_FOSSIL, COAL, GAS, OIL, GENERAL_GREEN, WIND, SOLAR, HYDRO, TIDAL, GEOTHERMAL, BIOMASS]
+  EnvironmentalImpactCategory:
+    type: string
+    enum: [CARBON_DIOXIDE, NOX, PARTICULATES]
+  AuthMethod:
+    type: string
+    enum: [AUTH_REQUEST, COMMAND, WHITELIST]
+  TariffDimensionType:
+    type: string
+    enum: [ENERGY, FLAT, PARKING_TIME, TIME, TIME_OF_DAY, RESERVATION_TIME, RESERVATION_FLAT]
+  SessionStatus:
+    type: string
+    enum: [ACTIVE, COMPLETED, INVALID, PENDING, RESERVATION]
+  CommandType:
+    type: string
+    enum: [START_SESSION, STOP_SESSION, RESERVE_NOW, CANCEL_RESERVATION, UNLOCK_CONNECTOR]
+  CommandResultType:
+    type: string
+    enum: [ACCEPTED, REJECTED, FAILED, NOT_SUPPORTED, UNKNOWN_SESSION]
+  ProfileType:
+    type: string
+    enum: [CHEAP, FAST, GREEN, REGULAR]
+  ChargingRateUnit:
+    type: string
+    enum: [A, W]

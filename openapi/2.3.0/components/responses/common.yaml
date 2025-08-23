@@ -1,0 +1,31 @@
+responses:
+  OCPI_GenericSuccess:
+    description: Successful OCPI operation
+    content:
+      application/json:
+        schema:
+          $ref: ../schemas/common.yaml#/schemas/OCPIResponse
+  OCPI_BadRequest:
+    description: Invalid parameters supplied
+    content:
+      application/json:
+        schema:
+          $ref: ../schemas/common.yaml#/schemas/OCPIResponse
+  OCPI_Unauthorized:
+    description: Authentication failed or missing
+    content:
+      application/json:
+        schema:
+          $ref: ../schemas/common.yaml#/schemas/OCPIResponse
+  OCPI_NotFound:
+    description: Resource not found
+    content:
+      application/json:
+        schema:
+          $ref: ../schemas/common.yaml#/schemas/OCPIResponse
+  OCPI_ServerError:
+    description: Internal server error
+    content:
+      application/json:
+        schema:
+          $ref: ../schemas/common.yaml#/schemas/OCPIResponse
